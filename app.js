@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRouters');
 const app = express();
 const cookieParser = require('cookie-parser');
-
+const { requireAuth, checkUser } = require('./middleware/authMiddleware');
 // middleware
 app.use(express.static('public'));
 app.use(express.json());
@@ -24,8 +24,9 @@ mongoose
   .catch((err) => console.log(err));
 
 // routes
+app.get('*', checkUser);
 app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', (req, res) => res.render('smoothies'));
+app.get('/smoothies', requireAuth, (req, res) => res.render('smoothies'));
 
 // app.get('/set-cookies', (req, res) => {
 //   // res.setHeader('Set-Cookies', 'newUser=true');
@@ -37,6 +38,7 @@ app.get('/read-cookies', (req, res) => {
   // console.log(cookies);
   res.json(cookies);
 });
+
 app.use(authRoutes);
 app.listen(3000, () => {
   console.log('server running on port 3000');
